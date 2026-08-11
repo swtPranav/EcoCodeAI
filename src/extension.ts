@@ -20,7 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showInformationMessage(`EcoCode AI: Running green computing evaluation for ${language}...`);
 
         // 2. Point to your live Cloud Proxy URL (from Step 1)
-        const PROXY_URL = 'https://ecocode-proxy.vercel.app/';
+        const PROXY_URL = 'https://ecocode-proxy.vercel.app/api/analyze.js';
 
         try {
             // 3. Send payload to your private backend proxy
