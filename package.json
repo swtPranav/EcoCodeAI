@@ -1,7 +1,7 @@
 {
-  "name": "hello-world",
-  "displayName": "hello-world",
-  "description": "a simple hello world extension",
+  "name": "EcoCodeAI",
+  "displayName": "EcoCodeAI",
+  "description": "EcoCode AI bridges the gap between software optimization and digital sustainability. It is an intelligent, automated Eco-Linter that evaluates software source code for environmental impact, rates its carbon efficiency, and dynamically leverages generative AI to refactor unoptimized algorithms into energy-efficient alternatives.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.125.0"
