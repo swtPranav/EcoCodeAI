@@ -4,83 +4,47 @@ export function activate(context: vscode.ExtensionContext) {
     let disposable = vscode.commands.registerCommand('ecocode.analyze', async () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
-            vscode.window.showErrorMessage('EcoCode AI: Open a code file first!');
+            vscode.window.showErrorMessage('EcoCode AI: Please open a code file first!');
             return;
         }
 
-        // 1. Detect highlighted code and file language
+        // 1. Capture highlighted code and current document language
         const selectedText = editor.document.getText(editor.selection);
-        const language = editor.document.languageId; // Automatically detects 'javascript', 'cpp', 'java', etc.
+        const language = editor.document.languageId;
 
         if (!selectedText) {
-            vscode.window.showWarningMessage('EcoCode AI: Please highlight a piece of code to analyze.');
+            vscode.window.showWarningMessage('EcoCode AI: Please highlight a block of code to analyze.');
             return;
         }
 
-        vscode.window.showInformationMessage(`EcoCode AI: Analyzing ${language} code for sustainability...`);
+        vscode.window.showInformationMessage(`EcoCode AI: Running green computing evaluation for ${language}...`);
 
-        const API_KEY = "AQ.Ab8RN6KCbqex-vsg2EI7c4HDtjTfqX_DyW46s9_YEcozyjYGqw";
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
-
-        // 2. Strict Prompt enforcing the target programming language
-        const promptText = `You are EcoCode AI, an expert in digital sustainability and green computing.
-
-CRITICAL LANGUAGE CONSTRAINT:
-- The input code is written in: **${language}**.
-- Your output refactored code MUST be written strictly in **${language}**.
-- DO NOT convert or translate the code into Python, C++, Java, JavaScript, or any other language. Match the input language (**${language}**) exactly!
-
-Provide your output in this EXACT Markdown layout:
-
-# 🌿 EcoCode AI Sustainability Report
-
-## 📊 Green Efficiency Rating
-| Metric | Assessment |
-|---|---|
-| **Detected Language** | **${language}** |
-| **Carbon Grade** | [Insert A through F here] |
-| **Est. Energy Saved** | [Insert estimate %, e.g., 35%] fewer CPU cycles |
-| **Algorithmic Complexity** | O(...) |
-
----
-
-## 🔍 Identified Environmental Anti-Patterns
-* [List specific memory leaks, nested loops, or performance bottlenecks in the code]
-
----
-
-## 🚀 Refactored Green Code (${language})
-\`\`\`${language}
-[Insert fully optimized, clean, refactored ${language} code here]
-\`\`\`
-
----
-*EcoCode AI Engine • Green Computing Initiative*
-
-Code to analyze:
-\`\`\`${language}
-${selectedText}
-\`\`\``;
+        // 2. Point to your live Cloud Proxy URL (from Step 1)
+        const PROXY_URL = 'https://ecocode-proxy.vercel.app/';
 
         try {
-            const response = await fetch(url, {
+            // 3. Send payload to your private backend proxy
+            const response = await fetch(PROXY_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: promptText }] }]
+                    code: selectedText,
+                    language: language
                 })
             });
 
             if (!response.ok) {
-                throw new Error(`API Status ${response.status}`);
+                const errorPayload = await response.json() as any;
+                throw new Error(errorPayload.error || `Server responded with status ${response.status}`);
             }
 
-            const rawData = await response.json() as any;
-            const aiMarkdownResponse = rawData.candidates[0].content.parts[0].text;
+            const data = await response.json() as { result: string };
 
-            // 3. Render side-by-side Markdown
+            // 4. Render the returned markdown string side-by-side using VS Code's previewer
             const doc = await vscode.workspace.openTextDocument({
-                content: aiMarkdownResponse,
+                content: data.result,
                 language: 'markdown'
             });
 
